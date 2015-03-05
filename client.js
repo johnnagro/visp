@@ -17,9 +17,11 @@
 
 var CJDNS_DIR = '/home/lars/workspace/cjdns';
 var RETRY_INTERVAL = 1000;
+var TUN = 'tun0';
 
 var Cjdns = require(CJDNS_DIR + '/contrib/nodejs/cjdnsadmin/cjdnsadmin');
 var nThen = require(CJDNS_DIR + '/contrib/nodejs/cjdnsadmin/nthen');
+var Spawn = require('child_process').spawn;
 
 var main = function(argv) {
 
@@ -30,6 +32,28 @@ var main = function(argv) {
 
     }).nThen(function(waitFor) {
 
+        var setupRoutes = function(conn) {
+            var route = conn.ip4Address + '/' + parseInt(conn.ip4Prefix);
+
+            console.log('ipv4', route);
+            console.log('direction', (conn.outgoing == '1') ? 'outgoing' : 'incoming');
+            console.log('pubkey', conn.key);
+
+            var args = ['route', 'add', 'dev', TUN, route];
+            var ip = Spawn('ip', args, {stdio: 'inherit'});
+            ip.on('error', function(err) {
+                waitFor.abort();
+                throw err;
+            });
+            ip.on('close', waitFor(function(code) {
+                if (code == 0) {
+                    console.log('Added ' + route + ' via ' + TUN);
+                } else {
+                    throw new Error('ip route exited with ' + code);
+                }
+            }));
+        };
+
         var listConnections = function() {
             cjdns.IpTunnel_listConnections(waitFor(function(err, ret) {
                 if (err) { throw err; }
@@ -37,9 +61,8 @@ var main = function(argv) {
                 if (ret.connections.length > 0) {
                     var conn = parseInt(ret.connections[0]);
                     cjdns.IpTunnel_showConnection(conn, waitFor(function(err, ret) {
-                        console.log('ipv4', ret.ip4Address + '/' + (32 - parseInt(ret.ip4Prefix)));
-                        console.log('direction', (ret.outgoing == '1') ? 'outgoing' : 'incoming');
-                        console.log('pubkey', ret.key);
+                        if (err) { throw err; }
+                        setupRoutes(ret);
                     }));
                 } else {
                     console.log('Waiting for IPTunnel connection...');
