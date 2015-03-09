@@ -39,6 +39,8 @@ var main = function(argv) {
             console.log('direction', (conn.outgoing == '1') ? 'outgoing' : 'incoming');
             console.log('pubkey', conn.key);
 
+            console.log('=> ip route add dev ' + TUN + ' ' + route);
+
             var args = ['route', 'add', 'dev', TUN, route];
             var ip = Spawn('ip', args, {stdio: 'inherit'});
             ip.on('error', function(err) {
@@ -54,7 +56,7 @@ var main = function(argv) {
             }));
         };
 
-        var listConnections = function() {
+        var waitForConnection = function(callback) {
             cjdns.IpTunnel_listConnections(waitFor(function(err, ret) {
                 if (err) { throw err; }
 
@@ -62,16 +64,18 @@ var main = function(argv) {
                     var conn = parseInt(ret.connections[0]);
                     cjdns.IpTunnel_showConnection(conn, waitFor(function(err, ret) {
                         if (err) { throw err; }
-                        setupRoutes(ret);
+                        callback(ret);
                     }));
                 } else {
                     console.log('Waiting for IPTunnel connection...');
-                    setTimeout(waitFor(listConnections), RETRY_INTERVAL);
+                    setTimeout(waitFor(function() {
+                        waitForConnection(callback);
+                    }), RETRY_INTERVAL);
                 }
             }));
         };
 
-        listConnections();
+        waitForConnection(setupRoutes);
 
     }).nThen(function(waitFor) {
 
