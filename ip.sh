@@ -9,10 +9,10 @@ set -ex
 #   sudo ./ip.sh tun tun0 fc12::3456
 #   sudo ./ip.sh addr tun0 172.23.23.2
 #   sudo ./ip.sh route tun0 172.23.23.0/24
-#   sudo ./ip.sh default - 172.23.23.1
+#   sudo ./ip.sh gw default 172.23.23.1
 #
 # If peered over UDP, add host routes before adding the default route:
-#   sudo ./ip.sh host wlan0 12.34.56.78
+#   sudo ./ip.sh gw 37.139.20.30 192.168.3.1
 
 cmd=$1
 ifname=$2
@@ -21,7 +21,7 @@ addr=$3
 if [[ "$cmd" = "tun" ]]; then
   ip tuntap add mode tun dev "$ifname"
   ip addr add "$addr"/8 dev "$ifname"
-  ip link set mtu 1312 dev "$ifname"
+  ip link set mtu 1304 dev "$ifname"
   ip link set "$ifname" up
 fi
 
