@@ -5,7 +5,7 @@ source 'https://rubygems.org'
 gem 'visp', '0.0.0', path: '.'
 
 gem 'dotenv'
-gem 'httpkit', path: '../httpkit'
+gem 'httpkit', git: 'https://github.com/lgierth/httpkit.git'
 gem 'oj'
 
 group :development do

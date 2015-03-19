@@ -1,16 +1,17 @@
-PATH
-  remote: .
-  specs:
-    visp (0.0.0)
-
-PATH
-  remote: ../httpkit
+GIT
+  remote: https://github.com/lgierth/httpkit.git
+  revision: f94fa4d715dc41760096a5ed56f3ba3747fc27bc
   specs:
     httpkit (0.6.0)
       adamantium (~> 0.2.0)
       eventmachine (~> 1.0)
       http_parser.rb (~> 0.6.0)
       promise.rb (~> 0.6.0)
+
+PATH
+  remote: .
+  specs:
+    visp (0.0.0)
 
 GEM
   remote: https://rubygems.org/
