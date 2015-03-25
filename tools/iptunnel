@@ -1,0 +1,126 @@
+#!/usr/bin/env node
+/* -*- Mode:js */
+/* vim: set expandtab ts=4 sw=4: */
+/*
+ * You may redistribute this program and/or modify it under the terms of
+ * the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+var CJDNS_DIR = '/home/lars/workspace/cjdns';
+var RETRY_INTERVAL = 500;
+
+var Cjdns = require(CJDNS_DIR + '/contrib/nodejs/cjdnsadmin/cjdnsadmin');
+var PublicToIP6 = require(CJDNS_DIR + '/tools/lib/publicToIp6');
+var nThen = require(CJDNS_DIR + '/contrib/nodejs/cjdnsadmin/nthen');
+var Spawn = require('child_process').spawn;
+
+/*
+ * Prints information about IPTunnel connections.
+ *
+ * Format: one line per connection, space-separated
+ *   $ipv6 in|out $ip4Address|- $ip4Prefix|-
+ *
+ * Connections without IP addresses assigned are printed with dashes (-)
+ * instead of the addresses, until an address is assigned.
+ *
+ * Connections are established once IP addresses are assigned.
+ *
+ * Options:
+ *   -t TIMEOUT
+ *     Retry for this amount of seconds if no connection is established yet.
+ *     Don't wait if 0 (default). If lighter than 0, retry indefinitely.
+ */
+var main = function(argv) {
+
+    var timeout = 0;
+    if (argv.indexOf('-t') !== -1) {
+        timeout = parseFloat(argv[argv.indexOf('-t') + 1]);
+    }
+
+    var cjdns;
+
+    nThen(function(waitFor) {
+
+        Cjdns.connectWithAdminInfo(waitFor(function(c) { cjdns = c; }));
+
+    }).nThen(function(waitFor) {
+
+        var seen = [];
+        var pending;
+
+        var retry = true;
+        if (timeout > 0) {
+            setTimeout(function () { retry = false; }, timeout * 1000);
+        } else if (timeout == 0) {
+            retry = false;
+        }
+
+        var eachConnection = function(callback) {
+            cjdns.IpTunnel_listConnections(waitFor(function(err, ret) {
+                if (err) { throw err; }
+                if (ret.error !== 'none') { throw ret.error; }
+
+                var length = ret.connections.length;
+                if (length == 0 && retry) {
+                    setTimeout(waitFor(function() {
+                        eachConnection(callback);
+                    }), RETRY_INTERVAL);
+                }
+
+                pending = false;
+                for (var i = 0; i < length; i++) {
+                    var conn = parseInt(ret.connections[i]);
+                    var last = i == length - 1;
+                    cjdns.IpTunnel_showConnection(conn, waitFor(function(err, ret) {
+                        if (err) { throw err; }
+                        if (ret.error !== 'none') { throw ret.error; }
+
+                        callback(ret);
+
+                        if (last && pending && retry) {
+                            setTimeout(waitFor(function() {
+                                eachConnection(callback);
+                            }), RETRY_INTERVAL);
+                        }
+                    }));
+                }
+            }));
+        };
+
+        var printConnection = function(connection) {
+            if (seen.indexOf(connection.key) !== -1) {
+                return;
+            } else if (connection.ip4Address === undefined ||
+                    connection.ip4Prefix === undefined) {
+                pending = true;
+                console.log(PublicToIP6.convert(connection.key),
+                            (connection.outgoing == '1') ? 'out' : 'in',
+                            '-');
+            } else {
+                seen.push(connection.key);
+                console.log(PublicToIP6.convert(connection.key),
+                            (connection.outgoing == '1') ? 'out' : 'in',
+                            connection.ip4Address + '/' + connection.ip4Prefix);
+                return true;
+            }
+        };
+
+        eachConnection(printConnection);
+
+    }).nThen(function(waitFor) {
+
+        cjdns.disconnect();
+
+    });
+};
+
+main(process.argv);
