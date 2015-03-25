@@ -104,12 +104,13 @@ var main = function(argv) {
                 pending = true;
                 console.log(PublicToIP6.convert(connection.key),
                             (connection.outgoing == '1') ? 'out' : 'in',
-                            '-');
+                            '-', '-');
             } else {
                 seen.push(connection.key);
                 console.log(PublicToIP6.convert(connection.key),
                             (connection.outgoing == '1') ? 'out' : 'in',
-                            connection.ip4Address + '/' + connection.ip4Prefix);
+                            connection.ip4Address,
+                            connection.ip4Prefix);
                 return true;
             }
         };
