@@ -1,0 +1,45 @@
+#!/bin/sh
+set -e
+
+# Usage:
+#   sudo cp cjdns-iptunnel /etc/init.d/
+#   sudo service cjdns-iptunnel start
+
+export PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin
+
+. /lib/lsb/init-functions
+
+CJDNS_DIR=/opt/cjdns
+TUN=tun0
+
+case "$1" in
+    start)
+        conn=`tools/iptunnel | grep out | head -n 1`
+        address=`echo $conn | cut -d' ' -f3`
+        prefix=`echo $conn | cut -d' ' -f4`
+        network=`ipcalc -n -b $address/$prefix | grep 'Network' | tr -d '[[:space:]]' | cut -d':' -f2`
+        gateway=`ipcalc -n -b $address/24 | grep 'HostMin' | tr -d '[[:space:]]' | cut -d':' -f2`
+        oldGateway=`ip -f inet route show | grep default | cut -d' ' -f3`
+
+        if [ $oldGateway = $gateway ]; then
+            echo Cjdns IPTunnel to $network already running
+            exit 0
+        fi
+
+        echo Starting cjdns IPTunnel to $network
+
+        echo ip addr add dev $TUN $address/32
+        echo ip route add dev $TUN $network
+
+        # cat /etc/cjdroute.conf | $CJDNS_DIR/tools/udp-peers
+        #     while read peerAddress _rest; do
+        #         ip route add $peerAddress via $oldGateway
+        #     done
+
+        echo ip route add default via $gateway
+        ;;
+
+    stop)
+        echo stop plox
+        ;;
+esac
