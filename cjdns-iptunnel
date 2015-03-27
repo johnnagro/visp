@@ -11,10 +11,16 @@ export PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin
 
 CJDNS_DIR=/opt/cjdns
 TUN=tun0
+TIMEOUT=-1
 
 case "$1" in
     start)
-        conn=`tools/iptunnel | grep out | head -n 1`
+        conn=`tools/iptunnel -t $TIMEOUT | grep out | grep -v - | head -n 1`
+        if [ conn = '' ]; then
+            echo Failed to establish cjdns IPTunnel
+            exit 1
+        fi
+
         address=`echo $conn | cut -d' ' -f3`
         prefix=`echo $conn | cut -d' ' -f4`
         network=`ipcalc -n -b $address/$prefix | grep 'Network' | tr -d '[[:space:]]' | cut -d':' -f2`
