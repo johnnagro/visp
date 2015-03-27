@@ -48,6 +48,6 @@ case "$1" in
         ;;
 
     stop)
-        echo stop plox
+        echo Not yet implemented.
         ;;
 esac
