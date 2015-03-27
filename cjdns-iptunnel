@@ -34,15 +34,17 @@ case "$1" in
 
         echo Starting cjdns IPTunnel to $network
 
+        # peers=`cat /etc/cjdroute.conf | tools/udp-peers`
+        # while read peerAddress _rest < $peers; do
+        #     ip route add $peerAddress via $oldGateway
+        # done
+
         echo ip addr add dev $TUN $address/32
-        echo ip route add dev $TUN $network
-
-        # cat /etc/cjdroute.conf | $CJDNS_DIR/tools/udp-peers
-        #     while read peerAddress _rest; do
-        #         ip route add $peerAddress via $oldGateway
-        #     done
-
-        echo ip route add default via $gateway
+        if [ $network = '0.0.0.0/0' ]; then
+            echo ip route add default via $gateway
+        else
+            echo ip route add dev $TUN $network
+        fi
         ;;
 
     stop)
