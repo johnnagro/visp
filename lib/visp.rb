@@ -1,7 +1,9 @@
 # encoding: utf-8
 
 require 'visp/cjdns'
-require 'visp/server'
+require 'visp/tunnel'
+require 'visp/leases'
+require 'visp/client'
 
 class VISP
   # @param cjdns [VISP::Cjdns] The admin API

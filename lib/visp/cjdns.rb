@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-class VISP
+module VISP
   class Cjdns
     def initialize(options)
     end

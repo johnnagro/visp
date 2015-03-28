@@ -3,10 +3,21 @@
 require 'httpkit'
 require 'oj'
 
-class VISP
-  class Server
-    def initialize(visp)
-      @visp = visp
+module VISP
+  class Leases
+    def initialize(cjdns, options)
+    end
+
+    def run
+      $stderr.puts 'VISP::Leases#run'
+    end
+
+    def replay_journal
+      $stderr.puts 'VISP::Leases#replay_journal'
+    end
+
+    def maintain_leases
+      $stderr.puts 'VISP::Leases#maintain_leases'
     end
 
     def serve(request, served)
