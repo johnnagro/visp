@@ -1,0 +1,40 @@
+#!/usr/bin/env ruby
+# encoding: utf-8
+
+require 'httpkit'
+require 'visp/cjdns'
+
+cjdns = VISP::Cjdns.new(address: '127.0.0.1', port: 11234, password: 'foo')
+
+HTTPkit.start do
+  Signal.trap(:SIGINT) { HTTPkit.stop }
+
+  case ARGV[0]
+  when 'tunnel' then
+    require 'visp/tunnel'
+    tunnel = VISP::Tunnel.new(network: '172.25.25.0/24', interface: 'tun0', forward: 'eth0')
+    tunnel.run
+    HTTPkit.stop
+  when 'leases' then
+    require 'visp/leases'
+    address = ENV['ADDRESS'] || '127.0.0.1'
+    port = ENV['PORT'] || 3000
+    leases = VISP::Leases.new(cjdns, address: address, port: port,
+                                     journal: File.new('./leases.json', 'a+'))
+    leases.replay_journal
+    EM.add_periodic_timer(5) { leases.maintain_leases }
+    leases.run
+  when 'client' then
+    require 'visp/client'
+    client = VISP::Client.new(cjdns, interface: 'tun0')
+    EM.add_periodic_timer(5) { client.maintain_tunnels }
+    client.run
+  when 'sudo' then
+    path = File.expand_path('../visp-ip', __FILE__)
+    $stderr.puts ENV['USER'] + "\tALL=NOPASSWD: " + path
+    HTTPkit.stop
+  else
+    $stderr.puts 'Usage: visp tunnel|leases|client|sudo'
+    HTTPkit.stop
+  end
+end
