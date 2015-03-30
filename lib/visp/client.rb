@@ -17,6 +17,10 @@ module VISP
     end
 
     def run
+      announcements.each do |tunnel|
+        @cjdns.call(:IpTunnel_connectTo, publicKeyOfNodeToConnectTo: tunnel[:public_key])
+      end
+
       conn = connections.first
       net, gw = network(conn), gateway(conn)
 
@@ -32,6 +36,10 @@ module VISP
       else
         ip "route #{@cjdns.interface}"
       end
+    end
+
+    def announcements
+      [{ public_key: 'qphnptqz9zv5tupr67njnsjtqtj62spun26798kuw3kq2hwlgu80.k' }]
     end
 
     def connections
