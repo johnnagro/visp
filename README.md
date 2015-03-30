@@ -6,6 +6,43 @@
 
 ## Random Notes
 
+- server: service cjdns start
+- server: visp start-tunnel
+  - address and route
+  - forwarding, NAT
+- server: visp start-leases
+  - web app
+  - for each requested lease: IpTunnel_allowConnection()
+
+- client: service cjdns start
+- client: visp start-client
+  - for each pear: get tunnel announcements
+  - for each announced tunnel: get lease
+  - for each lease: IpTunnel_connectTo()
+    - spawn separate cjdroute
+  - tunnel health
+  - tunnel failover
+
+```
+git clone https://github.com/berlinmeshnet/visp.git /opt/visp
+
+groupadd visp
+useradd -g visp -d /opt/visp -s /bin/bash visp
+chown -R visp:visp /opt/visp
+
+cd /opt/visp
+sudo -i -u visp bundle install --path vendor/bundle
+
+sudo -i -u visp bundle exec visp sudo > /etc/sudoers.d/visp
+chmod 440 /etc/sudoers.d/visp
+
+# on the server:
+sudo -i -u visp bundle exec visp tunnel
+
+# on the client:
+sudo -i -u visp bundle exec visp client
+```
+
 Reading list:
 
 - https://github.com/hyperboria/cjdns/blob/master/doc/tunnel.md
