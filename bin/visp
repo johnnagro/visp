@@ -12,7 +12,7 @@ HTTPkit.start do
   case ARGV[0]
   when 'tunnel' then
     require 'visp/tunnel'
-    tunnel = VISP::Tunnel.new(network: '172.25.25.0/24',
+    tunnel = VISP::Tunnel.new(network: '172.23.23.0/24',
                               interface: 'tun0',
                               forward: 'eth0')
     tunnel.run
@@ -33,10 +33,10 @@ HTTPkit.start do
     client.run
   when 'sudo' then
     path = File.expand_path('../visp-ip', __FILE__)
-    $stderr.puts ENV['USER'] + "\tALL=NOPASSWD: " + path
+    puts ENV['USER'] + " ALL=(ALL) NOPASSWD:" + path
     HTTPkit.stop
   else
-    $stderr.puts 'Usage: visp tunnel|leases|client|sudo'
+    puts 'Usage: visp tunnel|leases|client|sudo'
     HTTPkit.stop
   end
 end

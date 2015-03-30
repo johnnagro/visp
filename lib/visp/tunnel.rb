@@ -18,7 +18,7 @@ module VISP
 
     def ip(args)
       path = File.expand_path('../../../bin/visp-ip', __FILE__)
-      puts "sudo --non-interactive --reset-timestamp -- #{path} #{args}"
+      sh "sudo --non-interactive --reset-timestamp #{path} #{args}"
     end
 
     def sh(command)
