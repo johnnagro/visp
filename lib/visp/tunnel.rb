@@ -9,7 +9,7 @@ module VISP
     def run
       ip "addr #{@options[:interface]} #{address}"
       ip "route #{@options[:interface]} #{@options[:network]}"
-      ip "forward #{@options[:interface]} #{@options[:forward]}"
+      ip "nat #{@options[:interface]} #{@options[:forward]}"
     end
 
     def address
@@ -18,7 +18,7 @@ module VISP
 
     def ip(args)
       path = File.expand_path('../../../bin/visp-ip', __FILE__)
-      puts "sudo -n -- #{path} #{args}"
+      puts "sudo --non-interactive --reset-timestamp -- #{path} #{args}"
     end
 
     def sh(command)

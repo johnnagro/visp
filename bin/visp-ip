@@ -35,12 +35,18 @@ if [[ "$cmd" = "route" ]]; then
 fi
 
 if [[ "$cmd" = "gw" ]]; then
-  gw=$addr
-  addr=$ifname
+  addr=$2
+  gw=$3
   ip route add "$addr" via "$gw"
 fi
 
 if [[ "$cmd" = "nat" ]]; then
-  echo TODO: enable forwarding and NAT
-  exit 1
+  src=$2
+  dest=$3
+
+  echo 1 > /proc/sys/net/ipv4/conf/all/forwarding
+
+  iptables -t nat -A POSTROUTING -o "$dest" -j MASQUERADE
+  iptables -A FORWARD -i "$dest" -o "$src" -m state --state RELATED,ESTABLISHED -j ACCEPT
+  iptables -A FORWARD -i "$dest" -o "$src" -j ACCEPT
 fi
