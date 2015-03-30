@@ -6,7 +6,6 @@ set -ex
 # Meant for password-less sudo.
 #
 # Usage:
-#   sudo -n -- bin/visp-ip tun tun0 fc12::3456
 #   sudo -n -- bin/visp-ip addr tun0 172.23.23.2
 #   sudo -n -- bin/visp-ip route tun0 172.23.23.0/24
 #   sudo -n -- bin/visp-ip gw default 172.23.23.1
@@ -19,25 +18,18 @@ cmd=$1
 ifname=$2
 addr=$3
 
-if [[ "$cmd" = "tun" ]]; then
-  ip tuntap add mode tun dev "$ifname"
-  ip addr add "$addr"/8 dev "$ifname"
-  ip link set mtu 1304 dev "$ifname"
-  ip link set "$ifname" up
-fi
-
 if [[ "$cmd" = "addr" ]]; then
-  ip addr add dev "$ifname" "$addr"
+  ip addr show "$ifname" | grep "$addr" || ip addr add dev "$ifname" "$addr"
 fi
 
 if [[ "$cmd" = "route" ]]; then
-  ip route add dev "$ifname" "$addr"
+  ip route replace dev "$ifname" "$addr"
 fi
 
 if [[ "$cmd" = "gw" ]]; then
   addr=$2
   gw=$3
-  ip route add "$addr" via "$gw"
+  ip route replace "$addr" via "$gw"
 fi
 
 if [[ "$cmd" = "nat" ]]; then
