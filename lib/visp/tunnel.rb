@@ -2,14 +2,15 @@
 
 module VISP
   class Tunnel
-    def initialize(options)
+    def initialize(cjdns, options)
+      @cjdns = cjdns
       @options = options
     end
 
     def run
-      ip "addr #{@options[:interface]} #{address}"
-      ip "route #{@options[:interface]} #{@options[:network]}"
-      ip "nat #{@options[:interface]} #{@options[:forward]}"
+      ip "addr #{@cjdns.interface} #{address}"
+      ip "route #{@cjdns.interface} #{@options[:network]}"
+      ip "nat #{@cjdns.interface} #{@options[:forward]}"
     end
 
     def address

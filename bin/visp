@@ -12,9 +12,7 @@ HTTPkit.start do
   case ARGV[0]
   when 'tunnel' then
     require 'visp/tunnel'
-    tunnel = VISP::Tunnel.new(network: '172.23.23.0/24',
-                              interface: 'tun0',
-                              forward: 'eth0')
+    tunnel = VISP::Tunnel.new(cjdns, network: '172.23.23.0/24', forward: 'eth0')
     tunnel.run
     HTTPkit.stop
   when 'leases' then
