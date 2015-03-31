@@ -12,3 +12,4 @@
   - file: dest=/etc/profile.d/chruby.sh state=touch mode=0644
   - lineinfile: dest=/etc/profile.d/chruby.sh create=yes line="source /usr/local/share/chruby/chruby.sh"
   - lineinfile: dest=/etc/profile.d/chruby.sh line="chruby 2.2.1"
+  - command: chruby-exec 2.2.1 -- gem install bundler --no-rdoc --no-ri creates=/opt/rubies/ruby-2.2.1/bin/bundle
