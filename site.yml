@@ -3,13 +3,51 @@
   hosts: all
 
   tasks:
+  - command: apt-get install -y python-apt creates=/usr/lib/pyshared/python2.7/apt_pkg.so
+  - apt: pkg={{ item }} state=present
+    with_items:
+    - build-essential
+    - autoconf
+    - libtool
+    - bison
+    - flex
+    - vim
+    - htop
+    - screen
+
+  # XXX: --disable-maintainer-mode enables compat with wheezy's bison 2.5
+  # XXX: make version.h because it's missing
+  - git: repo=https://github.com/stedolan/jq.git dest=/opt/jq/ version=24005287f4ed1ffe486060b3156d5dfe6a3847da
+  - shell: autoreconf -i && ./configure --disable-maintainer-mode && make version.h && make && make install chdir=/opt/jq/ creates=/usr/local/bin/jq
+
+  - git: repo=https://github.com/cjdelisle/cjdns.git dest=/opt/cjdns/ version=649e26c7d61ccc66c20e87e1e3d381f9ef0cfcb0
+  - shell: ./clean && ./do chdir=/opt/cjdns/ creates=/opt/cjdns/cjdroute
+  - command: ln -s /opt/cjdns/cjdroute /usr/bin/cjdroute creates=/usr/bin/cjdroute
+  - shell: cjdroute --genconf | cjdroute --cleanconf | jq '.interfaces.ETHInterface = [{"bind":"all","beacon":2,"connectTo":{}}]' > /etc/cjdroute.conf creates=/etc/cjdroute.conf
+  - shell: cat /etc/cjdroute.conf | jq -r '.admin.password'
+    register: cjdns_admin_password
+  - template: src=files/cjdnsadmin dest=/root/.cjdnsadmin
+  - template: src=files/cjdnsadmin dest=/opt/visp/.cjdnsadmin
+
+  - command: cp /opt/cjdns/contrib/systemd/cjdns.service /etc/systemd/system/ creates=/etc/systemd/system/cjdns.service
+  - service: name=cjdns state=started enabled=yes
+
   - git: repo=https://github.com/postmodern/ruby-install.git dest=/opt/ruby-install update=no
   - shell: "make && make install chdir=/opt/ruby-install creates=/usr/local/bin/ruby-install"
   - command: ruby-install ruby 2.2.1 creates=/opt/rubies/ruby-2.2.1/bin/ruby
 
   - git: repo=https://github.com/postmodern/chruby.git dest=/opt/chruby update=no
   - shell: "make && make install chdir=/opt/chruby creates=/usr/local/bin/chruby-exec"
-  - file: dest=/etc/profile.d/chruby.sh state=touch mode=0644
-  - lineinfile: dest=/etc/profile.d/chruby.sh create=yes line="source /usr/local/share/chruby/chruby.sh"
+  - lineinfile: dest=/etc/profile.d/chruby.sh line="source /usr/local/share/chruby/chruby.sh"  create=yes mode=0644
   - lineinfile: dest=/etc/profile.d/chruby.sh line="chruby 2.2.1"
   - command: chruby-exec 2.2.1 -- gem install bundler --no-rdoc --no-ri creates=/opt/rubies/ruby-2.2.1/bin/bundle
+
+  - git: repo=https://github.com/berlinmeshnet/visp.git dest=/opt/visp
+  - group: name=visp state=present
+  - user: name=visp group=visp home=/opt/visp shell=/bin/bash
+  - file: path=/opt/visp state=directory owner=visp group=visp
+  - command: sudo -i -u visp bundle install --path vendor/bundle
+
+  - command: sudo -i -u visp bundle exec visp sudo
+    register: sudoer
+  - lineinfile: "dest=/etc/sudoers.d/visp line='{{ sudoer.stdout }}' create=yes mode=0440"
