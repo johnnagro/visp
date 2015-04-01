@@ -15,7 +15,7 @@ module VISP
       @socket = UDPSocket.new
       @socket.connect(@options[:address], @options[:port])
 
-      @debug = true
+      # @debug = true
       call(:ping)
     end
 
