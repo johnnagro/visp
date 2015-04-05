@@ -22,7 +22,7 @@ module VISP
     def call(func, args = nil)
       response = auth_send(func.to_s, args)
 
-      if func == 'ping' && response['error'] != 'none'
+      if func.to_s == 'ping' && response.fetch('error', 'none') != 'none'
         raise CjdnsError, response['error']
       end
 
