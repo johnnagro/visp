@@ -9,6 +9,10 @@ module VISP
       def outgoing?
         direction == 'out'
       end
+
+      def lease?
+        ipv4 != '-'
+      end
     end
 
     def initialize(cjdns, options)
@@ -31,10 +35,10 @@ module VISP
         @options[:peers].each { |ipv4| ip "gw #{ipv4} #{@options[:original_gateway]}" }
 
         # send all other traffic through the tunnel
-        ip "route #{@cjdns.interface} #{net}"
+        ip "route #{@cjdns.interface} #{gw}/32"
         ip "gw default #{gw}"
       else
-        ip "route #{@cjdns.interface}"
+        ip "route #{@cjdns.interface} #{net}"
       end
     end
 
@@ -45,7 +49,7 @@ module VISP
     def connections
       sh("#{@options[:dir]}/tools/iptunnel -t -1").each_line
         .map { |line| Connection.new(*line.split(/\s+/)) }
-        .select(&:outgoing?)
+        .select(&:outgoing?).select(&:lease?)
     end
 
     def network(conn)
@@ -64,11 +68,11 @@ module VISP
     end
 
     def sh(command)
+      puts command
       `#{command}`
     end
 
     def maintain_tunnels
-      $stderr.puts 'VISP::Client#maintain_tunnels'
     end
   end
 end

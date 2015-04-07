@@ -1,10 +1,17 @@
 #!/usr/bin/env ruby
 # encoding: utf-8
 
+require 'awesome_print'
+
+require 'dotenv'
 require 'httpkit'
 require 'visp/cjdns'
 
-cjdns = VISP::Cjdns.new(address: '127.0.0.1', port: 11234, password: 'foo')
+Dotenv.load
+
+cjdns = VISP::Cjdns.new(address: ENV['CJDNS_ADDRESS'],
+                        port: ENV['CJDNS_PORT'],
+                        password: ENV['CJDNS_PASSWORD'])
 
 HTTPkit.start do
   Signal.trap(:SIGINT) { HTTPkit.stop }
@@ -26,7 +33,7 @@ HTTPkit.start do
     leases.run
   when 'client' then
     require 'visp/client'
-    client = VISP::Client.new(cjdns, peers: ['188.166.62.155'],
+    client = VISP::Client.new(cjdns, peers: ENV['CLIENT_PEERS'].split(','),
                                      original_gateway: '192.168.4.1',
                                      dir: File.expand_path('../..', __FILE__))
     EM.add_periodic_timer(5) { client.maintain_tunnels }
