@@ -14,6 +14,9 @@
     - vim
     - htop
     - screen
+    - nodejs
+
+  - file: path=/usr/bin/node src=/usr/bin/nodejs state=link
 
   # XXX: --disable-maintainer-mode enables compat with wheezy's bison 2.5
   # XXX: make version.h because it's missing
