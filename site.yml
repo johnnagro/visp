@@ -15,6 +15,7 @@
     - htop
     - screen
     - nodejs
+    - ipcalc
 
   - file: path=/usr/bin/node src=/usr/bin/nodejs state=link
 

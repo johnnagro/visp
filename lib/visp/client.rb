@@ -44,6 +44,9 @@ module VISP
     end
 
     def network(conn)
+      # ipcalc 0.41 on debian 7 can't deal with prefix 0
+      return '0.0.0.0/0' if conn.ipv4_prefix == '0'
+
       sh("ipcalc -n -b #{conn.ipv4}/#{conn.ipv4_prefix} | grep Network" +
         " | tr -d '[[:space:]]' | cut -d':' -f2").strip
     end
