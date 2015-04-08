@@ -5,15 +5,7 @@ require 'oj'
 
 module VISP
   class Client
-    Connection = Struct.new(:server, :direction, :ipv4, :ipv4_prefix) do
-      def outgoing?
-        direction == 'out'
-      end
-
-      def lease?
-        ipv4 != '-'
-      end
-    end
+    Connection = Struct.new(:server, :ipv4, :ipv4_prefix)
 
     def initialize(cjdns, options)
       @cjdns = cjdns
@@ -49,7 +41,6 @@ module VISP
     def connections
       sh("#{@options[:dir]}/tools/iptunnel -t -1").each_line
         .map { |line| Connection.new(*line.split(/\s+/)) }
-        .select(&:outgoing?).select(&:lease?)
     end
 
     def network(conn)
