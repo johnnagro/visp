@@ -33,7 +33,7 @@ HTTPkit.start do
     leases.run
   when 'client' then
     require 'visp/client'
-    client = VISP::Client.new(cjdns, peers: ENV['CLIENT_PEERS'].split(','),
+    client = VISP::Client.new(cjdns, peers: ENV['CLIENT_PEERS'].to_s.split(','),
                                      original_gateway: '192.168.4.1',
                                      dir: File.expand_path('../..', __FILE__))
     EM.add_periodic_timer(5) { client.maintain_tunnels }

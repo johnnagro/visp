@@ -56,6 +56,7 @@
     - CJDNS_ADDRESS=127.0.0.1
     - CJDNS_PORT=11234
     - CJDNS_PASSWORD={{ cjdns_admin_password.stdout }}
+    - CLIENT_PEERS=
 
   - command: sudo -i -u visp bundle exec visp sudo
     register: sudoer
