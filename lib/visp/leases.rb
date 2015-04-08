@@ -6,18 +6,14 @@ require 'oj'
 module VISP
   class Leases
     def initialize(cjdns, options)
+      @cjdns = cjdns
+      @options = options
     end
 
     def run
-      $stderr.puts 'VISP::Leases#run'
-    end
-
-    def replay_journal
-      $stderr.puts 'VISP::Leases#replay_journal'
     end
 
     def maintain_leases
-      $stderr.puts 'VISP::Leases#maintain_leases'
     end
 
     def serve(request, served)

@@ -23,6 +23,7 @@ module VISP
     end
 
     def sh(command)
+      puts command
       `#{command}`
     end
   end
