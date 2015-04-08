@@ -51,6 +51,12 @@
   - file: path=/opt/visp state=directory owner=visp group=visp
   - command: sudo -i -u visp bundle install --path vendor/bundle
 
+  - lineinfile: dest=/opt/visp/.env line='{{ item }}' create=yes owner=visp group=visp
+    with_items:
+    - CJDNS_ADDRESS=127.0.0.1
+    - CJDNS_PORT=11234
+    - CJDNS_PASSWORD={{ cjdns_admin_password.stdout }}
+
   - command: sudo -i -u visp bundle exec visp sudo
     register: sudoer
   - lineinfile: "dest=/etc/sudoers.d/visp line='{{ sudoer.stdout }}' create=yes mode=0440"
