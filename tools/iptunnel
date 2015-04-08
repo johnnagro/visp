@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-var CJDNS_DIR = '/home/lars/workspace/cjdns';
+var CJDNS_DIR = '/opt/cjdns';
 var RETRY_INTERVAL = 500;
 
 var Cjdns = require(CJDNS_DIR + '/contrib/nodejs/cjdnsadmin/cjdnsadmin');
