@@ -6,6 +6,37 @@
 
 ## TL;DR
 
+Client setup:
+
+```
+ip addr add dev tun0 172.23.23.2 (cjdns does it already)
+ip route add dev tun0 172.23.23.0/24
+ip route add default via 172.23.23.1
+```
+
+Make sure UDP peerings use the original gateway, e.g. your ISP:
+
+```
+ip route add 37.139.20.30 via 192.168.3.1
+ip route add 188.166.62.155 via 192.168.3.1
+```
+
+Server setup:
+
+```
+ip addr add dev tun0 172.23.23.1
+ip route add dev tun0 172.23.23.0/24
+```
+
+Packet forwarding, and NAT:
+
+```
+echo 1 > /proc/sys/net/ipv4/conf/all/forwarding
+
+iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+iptables -A FORWARD -i eth0 -o tun0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+iptables -A FORWARD -i eth0 -o tun0 -j ACCEPT
+```
 
 ## Random Notes
 
