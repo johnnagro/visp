@@ -9,8 +9,8 @@
 Client setup:
 
 ```
-ip addr add dev tun0 172.23.23.2 (cjdns does it already)
-ip route add dev tun0 172.23.23.0/24
+ip addr add dev tun0 172.23.23.2 (cjdroute does it automatically)
+ip route add dev tun0 172.23.23.0/24 (same, automatically)
 ip route add default via 172.23.23.1
 ```
 
