@@ -58,11 +58,16 @@ module VISP
     end
 
     def response(request)
-      puts request.uri
-      case request.uri
-      when '/tunnels' then tunnels_response
-      when '/knock' then knock_response(request)
-      else not_found_response(request)
+      puts "#{Time.now} #{request.remote_addr} #{request.uri}"
+      begin
+        case request.uri
+        when '/tunnels' then tunnels_response
+        when '/knock' then knock_response(request)
+        else not_found_response(request)
+        end
+      rescue => e
+        puts e.inspect
+        json_response(500, { 'error' => e })
       end
     end
 
