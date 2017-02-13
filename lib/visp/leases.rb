@@ -58,6 +58,7 @@ module VISP
     end
 
     def response(request)
+      puts request.uri
       case request.uri
       when '/tunnels' then tunnels_response
       when '/knock' then knock_response(request)
@@ -75,7 +76,9 @@ module VISP
     end
 
     def knock_response(request)
-      if request.post? && !self.knock(request.remote_addr)
+      if !request.post?
+        json_response(400, { 'error' => 'GET not supported' })
+      elsif !self.knock(request.remote_addr)
         json_response(503, { 'error' => 'server full' })
       else
         json_response(200, self.lease(request.remote_addr))
