@@ -58,21 +58,21 @@ module VISP
     end
 
     def response(request)
-      puts "#{Time.now} #{request.remote_addr} #{request.uri}"
       begin
+        puts "#{Time.now} #{request.remote_addr} #{request.uri}"
         case request.uri
-        when '/tunnels' then tunnels_response
-        when '/knock' then knock_response(request)
-        else not_found_response(request)
+          when '/tunnels' then tunnels_response(request)
+          when '/knock' then knock_response(request)
+          else not_found_response(request)
         end
-      rescue => e
+      rescue StandardError => e
         puts e.inspect
-        json_response(500, { 'error' => e })
+        json_response(500, { 'error' => 'Server error' })
       end
     end
 
     # TODO get public key
-    def tunnels_response
+    def tunnels_response(request)
       json_response(200, [
         { 'publicKey' => 'asdf.k',
           'routes' => ['0.0.0.0/0', '172.23.23.0/24'],
