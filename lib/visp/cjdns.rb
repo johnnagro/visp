@@ -19,6 +19,12 @@ module VISP
       call(:ping)
     end
 
+    # TODO
+    def public_key_for(ipv6)
+      # XXX total placeholder
+      'asdf.k'
+    end
+
     def call(func, args = nil)
       response = auth_send(func.to_s, args)
 
