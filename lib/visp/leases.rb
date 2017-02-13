@@ -22,6 +22,10 @@ module VISP
       '172.23.23.2/24'
     end
 
+    # TODO
+    def update_last_seen
+    end
+
     def knock(ipv6)
       return false if full?
       ipv4_address = acq
