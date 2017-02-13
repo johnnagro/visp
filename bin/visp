@@ -28,7 +28,8 @@ HTTPkit.start do
                                      forward: ENV['SERVER_FORWARD'])
     tunnel.run
 
-    leases = VISP::Leases.new(cjdns, address: ENV['SERVER_ADDRESS'],
+    leases = VISP::Leases.new(cjdns, visp,
+                                     address: ENV['SERVER_ADDRESS'],
                                      port: ENV['SERVER_PORT'])
     EM.add_periodic_timer(5) { leases.maintain_leases }
     leases.run
