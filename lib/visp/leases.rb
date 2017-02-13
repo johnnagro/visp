@@ -71,10 +71,10 @@ module VISP
     end
 
     def knock_response(request)
-      if request.post? && !@visp.knock(request.remote_addr)
+      if request.post? && !self.knock(request.remote_addr)
         json_response(503, { 'error' => 'server full' })
       else
-        json_response(200, @visp.lease(request.remote_addr))
+        json_response(200, self.lease(request.remote_addr))
       end
     end
 
