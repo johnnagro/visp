@@ -59,7 +59,7 @@ module VISP
 
     def response(request)
       begin
-        puts "#{Time.now} #{request.remote_addr} #{request.uri}"
+        puts "#{Time.now} #{request.headers.inpsect} #{request.uri}"
         case request.uri
           when '/tunnels' then tunnels_response(request)
           when '/knock' then knock_response(request)
