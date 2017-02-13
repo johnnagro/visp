@@ -13,6 +13,9 @@ cjdns = VISP::Cjdns.new(address: ENV['CJDNS_ADDRESS'],
                         port: ENV['CJDNS_PORT'],
                         password: ENV['CJDNS_PASSWORD'])
 
+journal = nil
+visp = VISP.new(cjdns, journal)
+
 HTTPkit.start do
   Signal.trap(:SIGINT) { HTTPkit.stop }
 

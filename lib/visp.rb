@@ -22,6 +22,11 @@ class VISP
   def maintain_leases
   end
 
+  # TODO
+  def acq
+    '172.23.23.2/24'
+  end
+
   def knock(ipv6)
     return false if full?
     ipv4_address = acq

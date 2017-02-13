@@ -5,12 +5,16 @@ require 'oj'
 
 module VISP
   class Leases
-    def initialize(cjdns, options)
+    def initialize(cjdns, visp, options)
       @cjdns = cjdns
+      @visp = visp
       @options = options
     end
 
     def run
+      HTTPkit::Server.start(address: @options[:address],
+                            port: @options[:port],
+                            handlers: [self])
     end
 
     def maintain_leases
@@ -28,6 +32,7 @@ module VISP
       end
     end
 
+    # TODO get public key
     def tunnels_response
       json_response(200, [
         { 'publicKey' => 'asdf.k',
