@@ -5,10 +5,39 @@ require 'oj'
 
 module VISP
   class Leases
-    def initialize(cjdns, visp, options)
+    def initialize(cjdns, options)
       @cjdns = cjdns
-      @visp = visp
+      @journal = {}
       @options = options
+    end
+
+    def replay_journal
+    end
+
+    def append_to_journal(public_key, lease)
+    end
+
+    # TODO
+    def acq
+      '172.23.23.2/24'
+    end
+
+    def knock(ipv6)
+      return false if full?
+      ipv4_address = acq
+      @cjdns.allow_connection(@cjdns.public_key_for(ipv6), ipv4_address)
+      update_last_seen
+      true
+    end
+
+    def lease(ipv6)
+      { 'ipv4_address' => '172.23.23.2/24',
+        'routes' => ['0.0.0.0/0', '172.23.23.0/24'],
+        'gateways' => ['172.23.23.1'] }
+    end
+
+    def full?
+      false
     end
 
     def run

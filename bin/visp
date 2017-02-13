@@ -13,8 +13,6 @@ cjdns = VISP::Cjdns.new(address: ENV['CJDNS_ADDRESS'],
                         port: ENV['CJDNS_PORT'],
                         password: ENV['CJDNS_PASSWORD'])
 
-journal = nil
-visp = VISP.new(cjdns, journal)
 
 HTTPkit.start do
   Signal.trap(:SIGINT) { HTTPkit.stop }
@@ -28,8 +26,7 @@ HTTPkit.start do
                                      forward: ENV['SERVER_FORWARD'])
     tunnel.run
 
-    leases = VISP::Leases.new(cjdns, visp,
-                                     address: ENV['SERVER_ADDRESS'],
+    leases = VISP::Leases.new(cjdns, address: ENV['SERVER_ADDRESS'],
                                      port: ENV['SERVER_PORT'])
     EM.add_periodic_timer(5) { leases.maintain_leases }
     leases.run
