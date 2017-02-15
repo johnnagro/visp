@@ -23,18 +23,18 @@ module VISP
     end
 
     # TODO
-    def update_last_seen
+    def update_last_seen(ipv6, public_key)
     end
 
-    def knock(ipv6)
+    def knock(ipv6, public_key)
       return false if full?
       ipv4_address = acq
-      @cjdns.allow_connection(@cjdns.public_key_for(ipv6), ipv4_address)
-      update_last_seen
+      @cjdns.allow_connection(public_key, ipv4_address)
+      update_last_seen(ipv6, public_key)
       true
     end
 
-    def lease(ipv6)
+    def lease(ipv6, public_key)
       { 'ipv4_address' => '172.23.23.2/24',
         'routes' => ['0.0.0.0/0', '172.23.23.0/24'],
         'gateways' => ['172.23.23.1'] }
@@ -81,12 +81,17 @@ module VISP
     end
 
     def knock_response(request)
-      if !request.post?
+      if request.http_method != 'post'
         json_response(400, { 'error' => 'GET not supported' })
-      elsif !self.knock(request.remote_addr)
+      end
+
+      # body: { 'ipv6' : '::1', 'public_key' : 'asdf.k' }
+      post_data = Oj.load(request.body)
+
+      if !self.knock(post_data[:ipv6], post_data[:public_key])
         json_response(503, { 'error' => 'server full' })
       else
-        json_response(200, self.lease(request.remote_addr))
+        json_response(200, self.lease(post_data[:ipv6], post_data[:public_key]))
       end
     end
 

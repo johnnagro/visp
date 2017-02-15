@@ -20,15 +20,8 @@ module VISP
     end
 
     # TODO
-    def public_key_for(ipv6)
-      # XXX total placeholder
-      'asdf.k'
-    end
-
-    # TODO
     def allow_connection(public_key, assigned_ipv4)
     end
-
 
     def call(func, args = nil)
       response = auth_send(func.to_s, args)
